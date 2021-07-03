@@ -12,20 +12,59 @@ pinF = 11
 pinG = 12
 pinDP = 13
 
+pinButton = 18
+pinLed = 22
+sum = 0
+
 def init():
 	GPIO.setmode(GPIO.BOARD)
-	GPIO.setup(pinA, GPIO.OUT)
-	GPIO.setup(pinB, GPIO.OUT)
-	GPIO.setup(pinC, GPIO.OUT)
-	GPIO.setup(pinD, GPIO.OUT)
-	GPIO.setup(pinE, GPIO.OUT)
-	GPIO.setup(pinF, GPIO.OUT)
-	GPIO.setup(pinG, GPIO.OUT)
-	GPIO.setup(pinDP, GPIO.OUT)
+	GPIO.setup(pinA, GPIO.OUT, initial=GPIO.HIGH)
+	GPIO.setup(pinB, GPIO.OUT, initial=GPIO.HIGH)
+	GPIO.setup(pinC, GPIO.OUT, initial=GPIO.HIGH)
+	GPIO.setup(pinD, GPIO.OUT, initial=GPIO.HIGH)
+	GPIO.setup(pinE, GPIO.OUT, initial=GPIO.HIGH)
+	GPIO.setup(pinF, GPIO.OUT, initial=GPIO.HIGH)
+	GPIO.setup(pinG, GPIO.OUT, initial=GPIO.LOW)
+	GPIO.setup(pinDP, GPIO.OUT, initial=GPIO.LOW)
+	GPIO.setup(pinLed, GPIO.OUT, initial=GPIO.HIGH)
+	GPIO.setup(pinButton, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+	# GPIO.add_event_detect(pinButton, GPIO.FALLING,callback=swAdd)
 	print 'gpio init completed!'
 
+def swAdd(ev=None):
+	global sum
+	GPIO.output(pinLed, GPIO.LOW)
 
+	if sum<9:
+		sum += 1
+	elif sum == 9:
+		sum = 0
 
+	if sum == 0:
+		display_0()
+	elif sum == 1:
+		display_1()
+	elif sum == 2:
+		display_2()
+	elif sum == 3:
+		display_3()	
+	elif sum == 4:
+		display_4()
+	elif sum == 5:
+		display_5()
+	elif sum == 6:
+		display_6()
+	elif sum == 7:
+		display_7()
+	elif sum == 8:
+		display_8()
+	elif sum == 9:
+		display_9()
+	
+	time.sleep(0.2)
+	GPIO.output(pinLed, GPIO.HIGH)
+	
+	
 def display_0():
 	GPIO.output(pinA, GPIO.HIGH)
 	GPIO.output(pinB, GPIO.HIGH)
@@ -163,36 +202,19 @@ def clear():
 
 def loop():
 	while True:
-		display_0()
-		time.sleep(1)
-		display_1()
-		time.sleep(1)
-		display_2()
-		time.sleep(1)
-		display_3()
-		time.sleep(1)
-		display_4()
-		time.sleep(1)
-		display_5()
-		time.sleep(1)
-		display_6()
-		time.sleep(1)
-		display_7()
-		time.sleep(1)
-		display_8()
-		time.sleep(1)
-		display_9()
-		time.sleep(1)
-		display_dp()
-		time.sleep(1)
-		clear()
-		time.sleep(1)
+		if GPIO.input(pinButton) == GPIO.LOW:
+			time.sleep(0.02)
+			if GPIO.input(pinButton)==GPIO.LOW:
+				while GPIO.input(pinButton)==GPIO.LOW:
+					pass
+				swAdd()
 	
 if __name__ == '__main__':
 	try:
 		init()
 		loop()
 	except KeyboardInterrupt:
+		GPIO.output(pinLed,GPIO.HIGH)
 		GPIO.cleanup()
 		print 'Key Board Interrupt!'
 		

@@ -21,7 +21,7 @@ import time
 
 - 小灯泡(blinkLed_cz)
 
-如果是输出，设置以什么方式读取引脚，```GPIO.BOARD```的话是物理坐标（括号里的），```GPIO.BC```的话是名字（绿字）
+如果是输出，设置以什么方式读取引脚，```GPIO.BOARD```的话是物理坐标（括号里的），```GPIO.BCM```的话是名字（绿字）
 
 然后设置对应引脚是输出，并且设定初始值是```GPIO.HIGH```
 
@@ -73,9 +73,11 @@ echoPin去接收超声波，距离上一次没接收到超声波的时候相比�
 
 说明书给的代码，在初始设定引脚的输入输出时，又设定了一个触发事件，事件内容写在了```callback```里
 
+顺便一说，如果事先不把```pull_up_down```设成```GPIO.PUD_UP```的话，跑出来它就不受控制一直在疯狂被摁的状态
+
 ```
-	GPIO.setup(ButtonPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-	GPIO.add_event_detect(ButtonPin, GPIO.FALLING, callback=swLed)
+GPIO.setup(ButtonPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.add_event_detect(ButtonPin, GPIO.FALLING, callback=swLed)
 ```
 
 然后循环里什么都不写（好家伙）
@@ -91,3 +93,27 @@ echoPin去接收超声波，距离上一次没接收到超声波的时候相比�
 可能又更好的解决方法吧，玩泥巴第二天也只能想到这个了
 
 由于原理上和参考的代码长得不一样，姑且把两个都放上来了
+
+
+- 1位数码管(8segment_digital_tube_cz.py)
+
+其实就是引脚比较多，8个点8个控制而已，以前数电实验也写过，1的话哪两个亮，其他不亮，和别的输出差不多。说明书给的代码没有设初始值，但我给设了初始值显示是0
+
+加了个按键，按一下+1
+
+关于按钮的抖动问题，真的是老生常谈，大学就说，现在指导本科生FPGA的时候也有提到，到树莓派果然还有这个问题
+
+从网上抄了一份答案，果然我觉得触发事件那句话还是尽量少用吧，要不然想额外干啥都不让干
+
+在循环里加上
+```
+if GPIO.input(pinButton) == GPIO.LOW:
+	time.sleep(0.02) #等0.02秒
+	if GPIO.input(pinButton)==GPIO.LOW: #0.02秒之后还被摁，那就是真的被摁了
+		while GPIO.input(pinButton)==GPIO.LOW: #等待按键被抬起
+			pass #占位符
+		#这里写摁按键会执行的操作
+```
+
+
+然后加了个小灯，摁按键会亮0.2秒，操作和之前类似

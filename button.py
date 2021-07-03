@@ -3,7 +3,7 @@
 import RPi.GPIO as GPIO
 import time
 # Set #23 as LED pin
-LedPin = 23
+LedPin = 22
 # Set #18 as button pin
 ButtonPin = 18
 
@@ -26,7 +26,7 @@ def print_message():
 # Define a setup function for some setup
 def setup():
 	# Set the GPIO modes to BCM Numbering
-	GPIO.setmode(GPIO.BCM)
+	GPIO.setmode(GPIO.BOARD)
 	# Set LedPin's mode to output, 
 	# and initial level to high (3.3v)
 	GPIO.setup(LedPin, GPIO.OUT, initial=GPIO.HIGH)
